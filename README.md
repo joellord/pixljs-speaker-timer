@@ -3,7 +3,7 @@ As a speaker gift at [Connect.tech](https://connect.tech), we received a Pixl.js
 
 This speaker timer will let you know when you talk is about to end, first by blinking the display and eventually, by flashing the back light. 
 
-[Demo](https://javascripteverything.com).
+[Demo](https://drive.google.com/open?id=1zEoNj1R8Br2eBefbLtsvgDlx6vsfg01k).
 
 
 # Configuration
