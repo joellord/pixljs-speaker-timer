@@ -1,5 +1,5 @@
 // General Configuration
-const NAME = "Joel Lord";
+const NAME = ["Joel", "Lord"];
 const TIMERS = [
   {duration: 0.3, blinkAt: 0.25, flashAt: 0.1},
   {duration: 5, blinkAt: 2, flashAt: 1},
@@ -23,6 +23,9 @@ const VIEWS = {
   "TIMERCOUNTDOWN": "timercountdown"
 };
 
+var BUFFERX = 0;
+var BUFFERY = 0;
+
 var timerInterval;
 var blinkTimeout;
 var flashTimeout;
@@ -31,32 +34,39 @@ var btnOptions = {edge: "rising", debounce: 50, repeat: true};
 // Holds the state of the app
 var appState = {
   "view": VIEWS.HELLO,
+  lastView: undefined,
   timer: 0,
   timeLeft: 1,
   blinking: false,
-  flashing: false
+  flashing: false,
+  forceRedraw: true
 };
 
 // This function is the main() of the app.  Gets executed every 50 ms
 function drawApp() {
-  // draw view
-  switch (appState.view) {
-    case VIEWS.HELLO:
-      drawHelloMyNameIs(NAME);
-      break;
-    case VIEWS.TIMERCONFIG:
-      drawTimerConfig();
-      break;
-    case VIEWS.TIMERCOUNTDOWN:
-      drawTimerCountDown();
-      break;
+  if (appState.forceRedraw || appState.view === VIEWS.TIMERCOUNTDOWN) {
+    appState.forceRedraw = false;
+    // draw view
+    switch (appState.view) {
+      case VIEWS.HELLO:
+        drawHelloMyNameIs(NAME);
+        break;
+      case VIEWS.TIMERCONFIG:
+        drawTimerConfig();
+        break;
+      case VIEWS.TIMERCOUNTDOWN:
+        drawTimerCountDown();
+        break;
+    }
+    
+    g.flip();
   }
-  
-  g.flip();
 }
 
 // Listeners for button clicks
 setWatch(function() {
+  appState.forceRedraw = true;
+
   if (appState.view === VIEWS.TIMERCONFIG) {
    // +  
     appState.timer += 1;
@@ -65,6 +75,8 @@ setWatch(function() {
 }, BUTTON1, btnOptions);
 
 setWatch(function() {
+  appState.forceRedraw = true;
+
   if (appState.view === VIEWS.TIMERCONFIG) {
     appState.view = VIEWS.TIMERCOUNTDOWN;
     
@@ -88,6 +100,8 @@ setWatch(function() {
 }, BUTTON2, btnOptions);
 
 setWatch(function() {
+  appState.forceRedraw = true;
+
   if (appState.view === VIEWS.HELLO) {
     appState.view = VIEWS.TIMERCONFIG;
   } else if (appState.view === VIEWS.TIMERCONFIG) {
@@ -98,13 +112,14 @@ setWatch(function() {
     if(timerInterval) clearInterval(timerInterval);
     appState.blinking = false;
     appState.flashing = false;
-    // if (blinkTimeout) clearTimeout(blinkTimeout);
-    // if (flashTimeout) clearTimeout(flashTimeout);
     LED.reset();
   }
 }, BUTTON3, btnOptions);
 
 setWatch(function() {
+
+  appState.forceRedraw = true;
+
   if (appState.view === VIEWS.TIMERCONFIG) {
    // -  
     appState.timer -= 1;
@@ -131,19 +146,17 @@ function getMinSecString(timeLeft) {
 function drawHelloMyNameIs(name) {
   g.clear();
   
-  var nameExploded = name.split(" ");
-  
   g.setFontVector(16);
-  g.drawString(nameExploded[0], 100 - g.stringWidth(name), 20);
+  g.drawString(name[0], 100 - g.stringWidth(name), 20);
   g.setFontVector(16);
-  g.drawString(nameExploded[1], 110 - g.stringWidth(name), 40);
+  g.drawString(name[1], 110 - g.stringWidth(name), 40);
   
   g.setFontBitmap();
-  g.drawString("Hello, my name is", 0, 0);
+  g.drawString("Hello, my name is", 5+BUFFERX, 0+BUFFERY);
   
   // menu
   g.setFontBitmap();
-  g.drawString("=>", 111, 56);
+  g.drawString("=>", 116+BUFFERX, 56+BUFFERY);
 }
 
 function drawTimerConfig() {
